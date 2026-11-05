@@ -10,58 +10,81 @@ class ADT_PROJ_API UUPetWillComponent : public UActorComponent
 	GENERATED_BODY()
 
 public:
-
 	UUPetWillComponent();
 
-	// How often (seconds) the dog re-thinks what it wants
-	UPROPERTY(EditAnywhere, Category = "Will")
+	// Tunables
+
+	UPROPERTY(EditAnywhere, Category = "Will|Tuning")
 	float EvaluateInterval = 0.2f;
 
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Score System")
-	float attackScore = 0.0f;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Score System")
-	float protectScore = 0.0f;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Score System")
-	float searchScore = 0.0f;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Score System")
-	float followScore = 30.0f;
-
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Context")
-	float enemyDistanceToPlayer = 0.0f;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Context")
-	float enemyDistanceToPet = 0.0f;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Context")
-	float playerHealth = 100.0f;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Context")
-	float petHealth = 100.0f;
+	UPROPERTY(EditAnywhere, Category = "Will|Tuning")
+	float DetectionRadius = 1500.0f;
 	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Context")
-	float DetectionRadius = 100.0f;
+	UPROPERTY(EditAnywhere, Category = "Will|Tuning", meta = (ClampMin = "0", ClampMax = "1"))
+	float PetSelfWeight = 0.8f;
+	
+	UPROPERTY(EditAnywhere, Category = "Will|Tuning")
+	float SearchBaseScore = 0.6f;
 
-	//scapePaths ? Stamina ?
+	UPROPERTY(EditAnywhere, Category = "Will|Tuning")
+	float FollowBaseScore = 0.3f;
+
+	//Context
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Will|Context")
+	bool bHasEnemy = false;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Will|Context")
+	TObjectPtr<AActor> TargetEnemy = nullptr;
+	
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Will|Context")
+	float BestThreat = 0.0f;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Will|Context")
+	float EnemyDistanceToPlayer = 0.0f;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Will|Context")
+	float EnemyDistanceToPet = 0.0f;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Will|Context")
+	float PlayerHealth = 1.0f;
+	
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Will|Context")
+	float PetHealth = 1.0f;
+
+	// Scores
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Will|Scores")
+	float AttackScore = 0.0f;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Will|Scores")
+	float ProtectScore = 0.0f;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Will|Scores")
+	float SearchScore = 0.0f;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Will|Scores")
+	float FollowScore = 0.0f;
 
 protected:
 	virtual void BeginPlay() override;
-	
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
 private:
-	// "Ticket" of our repeating timer, so we can stop it later
 	FTimerHandle EvaluateTimerHandle;
 
-	void GatherContext();
-	// Runs every EvaluateInterval seconds (our "slow Tick")
+	void RunWill();
 	void EvaluateWill();
 
-	float HandleAttackScore();
-	float HandleProtectScore();
-	float HandleSearchScore();
+	void GatherContext();
+	void FindMostThreateningEnemy(APawn* Pet, APawn* Player);
+	
+	float CalculateAttackScore();
+	float CalculateProtectScore();
+	float CalculateSearchScore();
+	float CalculateFollowScore();
+	
+	float DistanceToProximity(float Distance) const;
+
+	void PrintDebug() const;
 };
