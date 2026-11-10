@@ -46,8 +46,52 @@ void UUPetWillComponent::EvaluateWill()
 	ProtectScore = CalculateProtectScore();
 	SearchScore  = CalculateSearchScore();
 	FollowScore  = CalculateFollowScore();
+	
+	HighestWillAction = CalculateAction();
+	
+	SwitchAction(HighestWillAction);
 
 	PrintDebug();
+}
+
+EPetAction UUPetWillComponent::CalculateAction()
+{
+	EPetAction HighestAction = EPetAction::Follow;
+	float HighestScore = 0.0f;
+	
+	UpdateScoreList();
+	
+	for (const TPair<EPetAction, float>& Pair : Scores)
+	{
+		if (Pair.Value > HighestScore)
+		{
+			HighestScore = Pair.Value;
+			HighestAction = Pair.Key;
+		}
+	}
+	
+	return HighestAction;
+}
+
+void UUPetWillComponent::SwitchAction(EPetAction PetAction)
+{
+	const float Now = GetWorld()->GetTimeSeconds();
+	const float Elapsed = Now - LastSwitchTime;
+	const float T = FMath::Clamp(Elapsed / SwitchTime, 0.0f, 1.0f);
+
+	CurrentMargin = SwitchMargin * (1.0f - T);
+
+	if (PetAction == CurrentAction) return;
+
+	const float NewScore = Scores.FindRef(PetAction);
+	const float CurrentScore = Scores.FindRef(CurrentAction);
+
+	if (NewScore > CurrentScore + CurrentMargin)
+	{
+		CurrentAction = PetAction;
+		LastSwitchTime = Now;
+		//mandar evento para mudar no st
+	}
 }
 
 void UUPetWillComponent::GatherContext()
@@ -121,6 +165,14 @@ void UUPetWillComponent::FindMostThreateningEnemy(APawn* Pet, APawn* Player)
 	bHasEnemy = (TargetEnemy != nullptr);
 }
 
+void UUPetWillComponent::UpdateScoreList()
+{
+	Scores.Add(EPetAction::Attack, AttackScore);
+	Scores.Add(EPetAction::Protect, ProtectScore);
+	Scores.Add(EPetAction::Search, SearchScore);
+	Scores.Add(EPetAction::Follow, FollowScore);
+}
+
 float UUPetWillComponent::DistanceToProximity(float Distance) const
 {
 	if (DetectionRadius <= 0.0f) return 0.0f;  
@@ -160,7 +212,7 @@ void UUPetWillComponent::PrintDebug() const
 	const float Time = EvaluateInterval + 0.1f;
 
 	GEngine->AddOnScreenDebugMessage(1, Time, FColor::Green,
-		FString::Printf(TEXT("Will | Atk %.0f  Prot %.0f  Search %.0f  Follow %.0f"),
+		FString::Printf(TEXT("Will | Atk %.2f  Prot %.2f  Search %.2f  Follow %.2f"),
 			AttackScore, ProtectScore, SearchScore, FollowScore));
 
 	GEngine->AddOnScreenDebugMessage(2, Time, FColor::Green,
@@ -170,4 +222,13 @@ void UUPetWillComponent::PrintDebug() const
 		FString::Printf(TEXT("Target: %s  threat %.2f  dPlayer %.0f  dPet %.0f"),
 			TargetEnemy ? *TargetEnemy->GetName() : TEXT("none"),
 			BestThreat, EnemyDistanceToPlayer, EnemyDistanceToPet));
+
+	FString ActionName = UEnum::GetValueAsString(CurrentAction);
+
+	GEngine->AddOnScreenDebugMessage(4, Time, FColor::Cyan,
+		FString::Printf(TEXT("Current Action: %s"), *ActionName));
+
+	GEngine->AddOnScreenDebugMessage(5, Time, FColor::Orange,
+		FString::Printf(TEXT("Want: %s  Margin %.3f"),
+			*UEnum::GetValueAsString(HighestWillAction), CurrentMargin));
 }

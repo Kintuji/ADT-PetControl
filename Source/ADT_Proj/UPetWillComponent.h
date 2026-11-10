@@ -4,6 +4,15 @@
 #include "Components/ActorComponent.h"
 #include "UPetWillComponent.generated.h"
 
+UENUM(BlueprintType)
+enum class EPetAction : uint8
+{
+	Follow UMETA(DisplayName = "Follow"),
+	Attack UMETA(DisplayName = "Attack"),
+	Protect UMETA(DisplayName = "Protect"),
+	Search UMETA(DisplayName = "Search")
+};
+
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class ADT_PROJ_API UUPetWillComponent : public UActorComponent
 {
@@ -12,7 +21,17 @@ class ADT_PROJ_API UUPetWillComponent : public UActorComponent
 public:
 	UUPetWillComponent();
 
-	// Tunables
+	//ENUM
+	UPROPERTY(BlueprintReadOnly, Category = "ENUM")
+	EPetAction CurrentAction = EPetAction::Follow;
+	
+	UPROPERTY(VisibleAnywhere, Category = "ENUM")
+	EPetAction HighestWillAction = EPetAction::Follow;
+	
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ENUU")
+	TMap<EPetAction, float> Scores;
+	
+	//Tunables
 
 	UPROPERTY(EditAnywhere, Category = "Will|Tuning")
 	float EvaluateInterval = 0.2f;
@@ -24,10 +43,10 @@ public:
 	float PetSelfWeight = 0.8f;
 	
 	UPROPERTY(EditAnywhere, Category = "Will|Tuning")
-	float SearchBaseScore = 0.6f;
+	float SearchBaseScore = 0.45f;
 
 	UPROPERTY(EditAnywhere, Category = "Will|Tuning")
-	float FollowBaseScore = 0.3f;
+	float FollowBaseScore = 0.55f;
 
 	//Context
 
@@ -65,6 +84,16 @@ public:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Will|Scores")
 	float FollowScore = 0.0f;
+	
+	// Anti Flick
+	UPROPERTY(EditAnywhere, Category = "AntiFlick")
+	float SwitchMargin = 0.1f;
+	
+	UPROPERTY(EditAnywhere, Category = "AntiFlick", meta = (ClampMin = "0.1"))
+	float SwitchTime = 1.0f;
+
+	UPROPERTY(VisibleAnywhere, Category = "AntiFlick")
+	float CurrentMargin = 0.0f;
 
 protected:
 	virtual void BeginPlay() override;
@@ -75,9 +104,15 @@ private:
 
 	void RunWill();
 	void EvaluateWill();
-
+	
+	EPetAction CalculateAction();
+	float LastSwitchTime = 0.0f;
+	void SwitchAction(EPetAction PetAction);
+	
 	void GatherContext();
 	void FindMostThreateningEnemy(APawn* Pet, APawn* Player);
+	
+	void UpdateScoreList();
 	
 	float CalculateAttackScore();
 	float CalculateProtectScore();
@@ -88,3 +123,5 @@ private:
 
 	void PrintDebug() const;
 };
+
+
