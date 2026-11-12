@@ -13,6 +13,8 @@ enum class EPetAction : uint8
 	Search UMETA(DisplayName = "Search")
 };
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnPetActionChanged, EPetAction, NewAction);
+
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class ADT_PROJ_API UUPetWillComponent : public UActorComponent
 {
@@ -21,15 +23,21 @@ class ADT_PROJ_API UUPetWillComponent : public UActorComponent
 public:
 	UUPetWillComponent();
 
+	UPROPERTY(BlueprintAssignable, Category = "Will|Decision")
+	FOnPetActionChanged OnActionChanged;
+	
 	//ENUM
-	UPROPERTY(BlueprintReadOnly, Category = "ENUM")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly,  Category = "ENUM")
 	EPetAction CurrentAction = EPetAction::Follow;
 	
 	UPROPERTY(VisibleAnywhere, Category = "ENUM")
 	EPetAction HighestWillAction = EPetAction::Follow;
 	
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ENUU")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ENUM")
 	TMap<EPetAction, float> Scores;
+	
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ENUM")
+	EPetAction OrderedPlayerAction = EPetAction::Follow;
 	
 	//Tunables
 
@@ -43,10 +51,10 @@ public:
 	float PetSelfWeight = 0.8f;
 	
 	UPROPERTY(EditAnywhere, Category = "Will|Tuning")
-	float SearchBaseScore = 0.45f;
+	float SearchBaseScore = 0.35f;
 
 	UPROPERTY(EditAnywhere, Category = "Will|Tuning")
-	float FollowBaseScore = 0.55f;
+	float FollowBaseScore = 0.40f;
 
 	//Context
 
@@ -84,6 +92,9 @@ public:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Will|Scores")
 	float FollowScore = 0.0f;
+	
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Will|Scores")
+	float HighestWillScore = 0.0f;
 	
 	// Anti Flick
 	UPROPERTY(EditAnywhere, Category = "AntiFlick")

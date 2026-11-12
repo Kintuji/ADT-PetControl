@@ -29,13 +29,12 @@ void UUPetWillComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
 
 void UUPetWillComponent::RunWill()
 {
-	// Like InvokeRepeating("EvaluateWill", 0, EvaluateInterval) in Unity
 	GetWorld()->GetTimerManager().SetTimer(
-		EvaluateTimerHandle,               // filled with the timer's ID
-		this,                              // object that owns the function
-		&UUPetWillComponent::EvaluateWill, // function to call
-		EvaluateInterval,                  // every X seconds
-		true);                             // loop
+		EvaluateTimerHandle,
+		this,
+		&UUPetWillComponent::EvaluateWill,
+		EvaluateInterval,
+		true);
 }
 
 void UUPetWillComponent::EvaluateWill()
@@ -67,6 +66,8 @@ EPetAction UUPetWillComponent::CalculateAction()
 		{
 			HighestScore = Pair.Value;
 			HighestAction = Pair.Key;
+			
+			HighestWillScore = HighestScore;
 		}
 	}
 	
@@ -90,7 +91,7 @@ void UUPetWillComponent::SwitchAction(EPetAction PetAction)
 	{
 		CurrentAction = PetAction;
 		LastSwitchTime = Now;
-		//mandar evento para mudar no st
+		OnActionChanged.Broadcast(CurrentAction);
 	}
 }
 
