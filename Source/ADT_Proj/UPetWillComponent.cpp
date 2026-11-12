@@ -66,10 +66,9 @@ EPetAction UUPetWillComponent::CalculateAction()
 		{
 			HighestScore = Pair.Value;
 			HighestAction = Pair.Key;
-			
-			HighestWillScore = HighestScore;
 		}
 	}
+	HighestWillScore = HighestScore;
 	
 	return HighestAction;
 }

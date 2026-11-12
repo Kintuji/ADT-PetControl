@@ -46,7 +46,7 @@ public:
 	float Margin = 0.0f;
 
 	UFUNCTION(BlueprintCallable, Category = "Obedience")
-	void GiveOrder(EPetAction NewOrder);
+	void ReceiveOrder(EPetAction NewOrder);
 
 	UFUNCTION(BlueprintCallable, Category = "Obedience")
 	void ClearOrder();

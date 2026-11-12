@@ -26,7 +26,7 @@ void UUPetObedienceComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
 	Super::EndPlay(EndPlayReason);
 }
 
-void UUPetObedienceComponent::GiveOrder(EPetAction NewOrder)
+void UUPetObedienceComponent::ReceiveOrder(EPetAction NewOrder)
 {
 	if (!Will) return;
 
@@ -34,9 +34,11 @@ void UUPetObedienceComponent::GiveOrder(EPetAction NewOrder)
 
 	OrderedScore = Will->Scores.FindRef(NewOrder);
 	HighestScore = Will->HighestWillScore;
+	
 	Resistance   = FMath::Max(0.0f, HighestScore - OrderedScore);
-	Margin       = Obedience - Resistance;
-	bObeys       = Margin >= 0.0f;
+	Margin = Obedience - Resistance;
+	
+	bObeys = Margin >= 0.0f;
 
 	GetWorld()->GetTimerManager().ClearTimer(OrderTimerHandle);
 
