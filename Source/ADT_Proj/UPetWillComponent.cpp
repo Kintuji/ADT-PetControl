@@ -201,7 +201,7 @@ float UUPetWillComponent::CalculateSearchScore()
 
 float UUPetWillComponent::CalculateFollowScore()
 {
-	return FollowBaseScore;
+	return  bHasEnemy ? 0.15f : FollowBaseScore;
 }
 
 
