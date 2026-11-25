@@ -26,7 +26,7 @@ void UUPetObedienceComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
 	Super::EndPlay(EndPlayReason);
 }
 
-void UUPetObedienceComponent::ReceiveOrder(EPetAction NewOrder)
+void UUPetObedienceComponent::ReceiveAndCalculateOrder(EPetAction NewOrder)
 {
 	if (!Will) return;
 
