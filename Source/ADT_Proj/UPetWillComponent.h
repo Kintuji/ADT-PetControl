@@ -98,7 +98,7 @@ public:
 	
 	// Anti Flick
 	UPROPERTY(EditAnywhere, Category = "AntiFlick")
-	float SwitchMargin = 0.1f;
+	float SwitchMargin = 0.17f;
 	
 	UPROPERTY(EditAnywhere, Category = "AntiFlick", meta = (ClampMin = "0.1"))
 	float SwitchTime = 1.0f;
