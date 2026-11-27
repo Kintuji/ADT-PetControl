@@ -26,7 +26,8 @@ void UUPetObedienceComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
 	Super::EndPlay(EndPlayReason);
 }
 
-void UUPetObedienceComponent::ReceiveAndCalculateOrder(EPetAction NewOrder)
+
+void UUPetObedienceComponent::ReceiveAndCalculateOrder(EPetAction NewOrder, bool bNewHasPlayerOrderDirection, FVector NewPlayerOrderDirection)
 {
 	if (!Will) return;
 
@@ -46,6 +47,9 @@ void UUPetObedienceComponent::ReceiveAndCalculateOrder(EPetAction NewOrder)
 	{
 		bHasOrder = true;
 
+		bHasPlayerOrderDirection = bNewHasPlayerOrderDirection;
+		PlayerOrderDirection = bNewHasPlayerOrderDirection ? NewPlayerOrderDirection : FVector::ZeroVector;
+
 		GetWorld()->GetTimerManager().SetTimer(
 			OrderTimerHandle,
 			this,
@@ -56,6 +60,7 @@ void UUPetObedienceComponent::ReceiveAndCalculateOrder(EPetAction NewOrder)
 	else
 	{
 		bHasOrder = false;
+		bHasPlayerOrderDirection = false;
 	}
 
 	PrintDebug();
@@ -70,6 +75,7 @@ void UUPetObedienceComponent::ClearOrder()
 	if (!bHasOrder) return;
 
 	bHasOrder = false;
+	bHasPlayerOrderDirection = false;
 
 	OnOrderChanged.Broadcast();
 }

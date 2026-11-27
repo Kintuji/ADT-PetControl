@@ -18,6 +18,12 @@ public:
 	UPROPERTY(BlueprintAssignable, Category = "Obedience|Events")
 	FOnOrderChanged OnOrderChanged;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Obedience|Search")
+	bool bHasPlayerOrderDirection = false;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Obedience|Search")
+	FVector PlayerOrderDirection = FVector::ZeroVector;
+
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Obedience|Tuning", meta = (ClampMin = "0", ClampMax = "1"))
 	float Obedience = 0.5f;
 
@@ -46,7 +52,7 @@ public:
 	float Margin = 0.0f;
 
 	UFUNCTION(BlueprintCallable, Category = "Obedience")
-	void ReceiveAndCalculateOrder(EPetAction NewOrder);
+	void ReceiveAndCalculateOrder(EPetAction NewOrder, bool bNewHasPlayerOrderDirection = false, FVector NewPlayerOrderDirection = FVector::ZeroVector);
 	
 	UFUNCTION(BlueprintCallable, Category = "Obedience")
 	void ClearOrder();
