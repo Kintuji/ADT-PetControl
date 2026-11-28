@@ -24,6 +24,9 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Obedience|Search")
 	FVector PlayerOrderDirection = FVector::ZeroVector;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Obedience|Search", meta = (ClampMin = "0"))
+	float OrderSearchDistance = 1000.0f;
+
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Obedience|Tuning", meta = (ClampMin = "0", ClampMax = "1"))
 	float Obedience = 0.5f;
 
